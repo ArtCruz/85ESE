@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"fmt"
-	"gateway/gateway/data"
+	"gateway/product_api/data"
 	"log"
 	"net/http"
 	"strconv"

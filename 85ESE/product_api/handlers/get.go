@@ -1,7 +1,8 @@
 package handlers
 
 import (
-	"gateway/gateway/data"
+	"fmt"
+	"gateway/product_api/data"
 	"net/http"
 )
 
@@ -15,6 +16,8 @@ func (p *Products) ListAll(rw http.ResponseWriter, r *http.Request) {
 	p.l.Println("[DEBUG] get all records")
 	rw.Header().Add("Content-Type", "application/json")
 
+	fmt.Printf("Requisição recebida do gateway: %s %s\n", r.Method, r.URL.Path)
+
 	prods := data.GetProducts()
 
 	err := data.ToJSON(prods, rw)
@@ -22,6 +25,7 @@ func (p *Products) ListAll(rw http.ResponseWriter, r *http.Request) {
 		// we should never be here but log the error just incase
 		p.l.Println("[ERROR] serializing product", err)
 	}
+
 }
 
 // swagger:route GET /products/{id} products listSingleProduct

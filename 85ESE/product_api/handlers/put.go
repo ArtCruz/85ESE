@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"gateway/gateway/data"
+	"gateway/product_api/data"
 	"net/http"
 )
 

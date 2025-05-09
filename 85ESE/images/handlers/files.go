@@ -1,11 +1,12 @@
 package handlers
 
 import (
+	"fmt"
 	"images/files"
 	"io"
 	"net/http"
+	"os"
 	"path/filepath"
-	"strconv"
 
 	"github.com/gorilla/mux"
 	"github.com/hashicorp/go-hclog"
@@ -35,32 +36,35 @@ func (f *Files) UploadREST(rw http.ResponseWriter, r *http.Request) {
 	f.saveFile(id, fn, rw, r.Body)
 }
 
-// UploadMultipar something
 func (f *Files) UploadMultipart(rw http.ResponseWriter, r *http.Request) {
+	// Log da requisição recebida do gateway
+	fmt.Printf("Requisição recebida do gateway: %s %s\n", r.Method, r.URL.Path)
+
 	err := r.ParseMultipartForm(128 * 1024)
 	if err != nil {
-		f.log.Error("Bad request", "error", err)
-		http.Error(rw, "Expected multipart form data", http.StatusBadRequest)
+		f.log.Error("Erro ao processar formulário multipart", "error", err)
+		http.Error(rw, "Erro ao processar formulário multipart", http.StatusBadRequest)
 		return
 	}
 
-	id, idErr := strconv.Atoi(r.FormValue("id"))
-	f.log.Info("Process form for id", "id", id)
-
-	if idErr != nil {
-		f.log.Error("Bad request", "error", err)
-		http.Error(rw, "Expected expected integer id", http.StatusBadRequest)
-		return
-	}
-
-	ff, mh, err := r.FormFile("file")
+	id := r.FormValue("id")
+	file, header, err := r.FormFile("file")
 	if err != nil {
-		f.log.Error("Bad request", "error", err)
-		http.Error(rw, "Expected file", http.StatusBadRequest)
+		f.log.Error("Erro ao obter arquivo", "error", err)
+		http.Error(rw, "Erro ao obter arquivo", http.StatusBadRequest)
 		return
 	}
+	defer file.Close()
 
-	f.saveFile(r.FormValue("id"), mh.Filename, rw, ff)
+	// Salvar o arquivo
+	f.saveFile(id, header.Filename, rw, file)
+}
+
+func (f *Files) Ping(rw http.ResponseWriter, r *http.Request) {
+	// Log da requisição de ping
+	fmt.Println("Ping recebido no serviço images")
+	rw.WriteHeader(http.StatusOK)
+	rw.Write([]byte("Pong"))
 }
 
 func (f *Files) invalidURI(uri string, rw http.ResponseWriter) {
@@ -70,12 +74,71 @@ func (f *Files) invalidURI(uri string, rw http.ResponseWriter) {
 
 // saveFile saves the contents of the request to a file
 func (f *Files) saveFile(id, path string, rw http.ResponseWriter, r io.ReadCloser) {
-	f.log.Info("Save file for product", "id", id, "path", path)
+	f.log.Info("Salvando arquivo para o produto", "id", id, "path", path)
 
 	fp := filepath.Join(id, path)
 	err := f.store.Save(fp, r)
 	if err != nil {
-		f.log.Error("Unable to save file", "error", err)
-		http.Error(rw, "Unable to save file", http.StatusInternalServerError)
+		f.log.Error("Erro ao salvar arquivo", "error", err)
+		http.Error(rw, "Erro ao salvar arquivo", http.StatusInternalServerError)
+		return
+	}
+
+	rw.WriteHeader(http.StatusOK)
+	rw.Write([]byte("Arquivo salvo com sucesso"))
+}
+
+type LocalStorage struct {
+	Path   string
+	Logger hclog.Logger
+}
+
+// Save implements files.Storage.
+func (l *LocalStorage) Save(path string, file io.Reader) error {
+	// Caminho completo para o arquivo
+	fullPath := filepath.Join(l.Path, path)
+
+	// Criar diretório, se necessário
+	dir := filepath.Dir(fullPath)
+	if _, err := os.Stat(dir); os.IsNotExist(err) {
+		l.Logger.Info("Criando diretório", "path", dir)
+		if err := os.MkdirAll(dir, os.ModePerm); err != nil {
+			l.Logger.Error("Erro ao criar diretório", "path", dir, "error", err)
+			return err
+		}
+	}
+
+	// Criar o arquivo
+	l.Logger.Info("Salvando arquivo", "path", fullPath)
+	out, err := os.Create(fullPath)
+	if err != nil {
+		l.Logger.Error("Erro ao criar arquivo", "path", fullPath, "error", err)
+		return err
+	}
+	defer out.Close()
+
+	// Copiar o conteúdo do arquivo recebido para o arquivo criado
+	_, err = io.Copy(out, file)
+	if err != nil {
+		l.Logger.Error("Erro ao salvar conteúdo no arquivo", "path", fullPath, "error", err)
+		return err
+	}
+
+	l.Logger.Info("Arquivo salvo com sucesso", "path", fullPath)
+	return nil
+}
+
+func NewLocalStorage(path string, logger hclog.Logger) *LocalStorage {
+	// Ensure the directory exists
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		if err := os.MkdirAll(path, os.ModePerm); err != nil {
+			logger.Error("Failed to create directory", "path", path, "error", err)
+			return nil
+		}
+	}
+
+	return &LocalStorage{
+		Path:   path,
+		Logger: logger,
 	}
 }
