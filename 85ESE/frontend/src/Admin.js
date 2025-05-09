@@ -34,41 +34,6 @@ class Admin extends React.Component {
         return this.state.validated;
     }
 
-    // handleSubmit(event) {
-    //     event.preventDefault();
-    //     if(event.currentTarget.checkValidity() === false) {
-    //         event.stopPropagation();
-    //         return;
-    //     };
-
-    //     this.setState({buttonDisabled: true, toastShow: false})
-
-    //     // create the data
-    //     const data = new FormData()
-    //     data.append('file', this.state.file);
-    //     data.append('id', this.state.id);
-
-    //     // upload the file
-    //     axios.post(
-    //         window.global.files_location, 
-    //         data, 
-    //         {'content-type': `multipart/form-data; boundary=${data._boundary}`})
-    //     .then(res => {
-    //         console.log(res);
-    //         var toastText = "";
-    //         if(res.status === 200) {
-    //             toastText = "Uploaded file";
-    //         } else {
-    //             toastText = "Unable to upload file. Error:" +res.statusText;
-    //         }
-
-    //         this.setState({buttonDisabled: false, toastShow: true, toastText: toastText});
-    //     }).catch(error => {
-    //         console.log("Err" + error);
-    //         this.setState({buttonDisabled: false, toastShow: true, toastText: "Unable to upload file. " + error});
-    //     });
-    // }
-
     handleSubmit(event) {
         event.preventDefault();
     
