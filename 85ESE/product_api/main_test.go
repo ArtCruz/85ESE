@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"gateway/product_api/sdk/client"
-	"gateway/product_api/sdk/client/products"
+	"product_api/sdk/client"
+	"product_api/sdk/client/products"
 	"testing"
 )
 

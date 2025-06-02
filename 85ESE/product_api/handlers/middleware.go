@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"context"
-	"gateway/product_api/data"
+	"product_api/data"
 
 	"net/http"
 )

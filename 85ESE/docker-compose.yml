@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  product_api:
+    build: ./product_api
+    ports:
+      - "9090:9090"
+    environment:
+      - PORT=9090
+
+  images:
+    build: ./images
+    ports:
+      - "9091:9091"
+    environment:
+      - PORT=9091
+
+  gateway:
+    build: ./gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - PRODUCT_API_URL=http://product_api:9090
+      - IMAGES_API_URL=http://images:9091
+      - PORT=8080
+    depends_on:
+      - product_api
+      - images
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_GATEWAY_URL=http://localhost:8080
+    depends_on:
+      - gateway

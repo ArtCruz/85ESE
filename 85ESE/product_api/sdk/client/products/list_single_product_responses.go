@@ -13,7 +13,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 
-	"gateway/product_api/sdk/models"
+	"product_api/sdk/models"
 )
 
 // ListSingleProductReader is a Reader for the ListSingleProduct structure.

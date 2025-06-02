@@ -3,6 +3,7 @@ package data
 import (
 	"fmt"
 	"regexp"
+	"strings"
 
 	"github.com/go-playground/validator"
 )
@@ -43,7 +44,7 @@ type Validation struct {
 // NewValidation creates a new Validation type
 func NewValidation() *Validation {
 	validate := validator.New()
-	validate.RegisterValidation("sku", validateSKU)
+	validate.RegisterValidation("sku", ValidateSKU)
 
 	return &Validation{validate}
 }
@@ -66,27 +67,30 @@ func NewValidation() *Validation {
 //				fmt.Println()
 //		}
 func (v *Validation) Validate(i interface{}) ValidationErrors {
-	errs := v.validate.Struct(i).(validator.ValidationErrors)
-
-	if len(errs) == 0 {
+	err := v.validate.Struct(i)
+	if err == nil {
 		return nil
 	}
 
+	// Só faz o type assertion se err for do tipo validator.ValidationErrors
+	validationErrors, ok := err.(validator.ValidationErrors)
+	if !ok {
+		// Se não for, retorna um erro genérico
+		return ValidationErrors{ValidationError{nil}}
+	}
+
 	var returnErrs []ValidationError
-	for _, err := range errs {
-		// cast the FieldError into our ValidationError and append to the slice
-		ve := ValidationError{err.(validator.FieldError)}
-		returnErrs = append(returnErrs, ve)
+	for _, ve := range validationErrors {
+		returnErrs = append(returnErrs, ValidationError{ve})
 	}
 
 	return returnErrs
 }
 
 // validateSKU
-func validateSKU(fl validator.FieldLevel) bool {
-	// SKU must be in the format abc-abc-abc
-	re := regexp.MustCompile(`[a-z]+-[a-z]+-[a-z]+`)
-	sku := re.FindAllString(fl.Field().String(), -1)
-
-	return len(sku) == 1
+func ValidateSKU(fl validator.FieldLevel) bool {
+	sku := fl.Field().String()
+	hasNumber := regexp.MustCompile(`[0-9]`).MatchString(sku)
+	hasDash := strings.Contains(sku, "-")
+	return hasNumber && !hasDash
 }

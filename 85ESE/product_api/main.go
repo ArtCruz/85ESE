@@ -2,12 +2,12 @@ package main
 
 import (
 	"context"
-	"gateway/product_api/data"
-	"gateway/product_api/handlers"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
+	"product_api/data"
+	"product_api/handlers"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -38,7 +38,7 @@ func main() {
 	getR.HandleFunc("/products/{id:[0-9]+}", ph.ListSingle)
 
 	putR := sm.Methods(http.MethodPut).Subrouter()
-	putR.HandleFunc("/products", ph.Update)
+	putR.HandleFunc("/products/{id:[0-9]+}", ph.Update)
 	putR.Use(ph.MiddlewareValidateProduct)
 
 	postR := sm.Methods(http.MethodPost).Subrouter()

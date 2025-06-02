@@ -1,8 +1,11 @@
 package handlers
 
 import (
-	"gateway/product_api/data"
 	"net/http"
+	"product_api/data"
+	"strconv"
+
+	"github.com/gorilla/mux"
 )
 
 // swagger:route PUT /products products updateProduct
@@ -17,19 +20,24 @@ import (
 func (p *Products) Update(rw http.ResponseWriter, r *http.Request) {
 	rw.Header().Add("Content-Type", "application/json")
 
-	// fetch the product from the context
-	prod := r.Context().Value(KeyProduct{}).(data.Product)
-	p.l.Println("[DEBUG] updating record id", prod.ID)
-
-	err := data.UpdateProduct(prod)
-	if err == data.ErrProductNotFound {
-		p.l.Println("[ERROR] product not found", err)
-
-		rw.WriteHeader(http.StatusNotFound)
-		data.ToJSON(&GenericError{Message: "Product not found in database"}, rw)
+	vars := mux.Vars(r)
+	idStr := vars["id"]
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(rw, "ID inválido", http.StatusBadRequest)
 		return
 	}
 
-	// write the no content success header
-	rw.WriteHeader(http.StatusNoContent)
+	// Pegue o produto do contexto, preenchido pelo middleware
+	prod := r.Context().Value(KeyProduct{}).(*data.Product)
+	prod.ID = id
+
+	err = data.UpdateProduct(*prod)
+	if err != nil {
+		http.Error(rw, "Produto não encontrado", http.StatusNotFound)
+		return
+	}
+
+	rw.WriteHeader(http.StatusOK)
+	data.ToJSON(prod, rw)
 }

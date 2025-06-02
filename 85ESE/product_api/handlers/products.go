@@ -2,9 +2,9 @@ package handlers
 
 import (
 	"fmt"
-	"gateway/product_api/data"
 	"log"
 	"net/http"
+	"product_api/data"
 	"strconv"
 
 	"github.com/gorilla/mux"

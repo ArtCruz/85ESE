@@ -2,8 +2,8 @@ package handlers
 
 import (
 	"fmt"
-	"gateway/product_api/data"
 	"net/http"
+	"product_api/data"
 )
 
 // swagger:route GET /products products listProducts

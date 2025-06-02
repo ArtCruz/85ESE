@@ -7,6 +7,8 @@ package models
 
 import (
 	"context"
+	"regexp"
+	"strings"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
@@ -124,17 +126,24 @@ func (m *Product) validatePrice(formats strfmt.Registry) error {
 }
 
 func (m *Product) validateSKU(formats strfmt.Registry) error {
+	sku := m.SKU
 
-	if err := validate.Required("sku", "body", m.SKU); err != nil {
-		return err
+    // Verifica se contém pelo menos um número
+	hasNumber := regexp.MustCompile(`[0-9]`).MatchString(*sku)
+    // Verifica se contém traço
+	hasDash := strings.Contains(*sku, "-")
+
+	if !hasNumber {
+		return validate.Required("sku", "body", sku) // ou um erro customizado
 	}
 
-	if err := validate.Pattern("sku", "body", *m.SKU, `[a-z]+-[a-z]+-[a-z]+`); err != nil {
-		return err
+	if hasDash {
+		return errors.New(422, "sku must not contain dashes ('-')")
 	}
 
 	return nil
 }
+
 
 // ContextValidate validates this product based on context it is used
 func (m *Product) ContextValidate(ctx context.Context, formats strfmt.Registry) error {

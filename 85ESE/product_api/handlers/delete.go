@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"gateway/product_api/data"
 	"net/http"
+	"product_api/data"
 )
 
 // swagger:route DELETE /products/{id} products deleteProduct

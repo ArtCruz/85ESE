@@ -1,9 +1,11 @@
 package handlers
 
 import (
+	"bytes"
 	"fmt"
 	"gateway/config"
 	"gateway/internal/services"
+	"io"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -27,27 +29,6 @@ func RegisterRoutes(router *mux.Router, cfg *config.Config) {
 		w.Write([]byte("Imagem enviada com sucesso"))
 	}).Methods(http.MethodPost)
 
-	router.HandleFunc("/ping/images", func(w http.ResponseWriter, r *http.Request) {
-		// URL do serviço images
-		url := cfg.ImagesAPIURL + "/ping"
-
-		// Enviar requisição GET para o serviço images
-		resp, err := http.Get(url)
-		if err != nil {
-			fmt.Printf("Erro ao pingar o serviço images: %v\n", err)
-			http.Error(w, "Serviço images não está acessível", http.StatusInternalServerError)
-			return
-		}
-		defer resp.Body.Close()
-
-		// Log da resposta do serviço images
-		fmt.Printf("Resposta do serviço images: %d %s\n", resp.StatusCode, resp.Status)
-
-		// Retornar a resposta para o cliente
-		w.WriteHeader(resp.StatusCode)
-		w.Write([]byte(fmt.Sprintf("Serviço images respondeu com status: %s", resp.Status)))
-	}).Methods(http.MethodGet)
-
 	// Rota para o serviço products
 	router.HandleFunc("/products", func(w http.ResponseWriter, r *http.Request) {
 		// Log da requisição recebida do frontend
@@ -62,4 +43,79 @@ func RegisterRoutes(router *mux.Router, cfg *config.Config) {
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(products)
 	}).Methods(http.MethodGet)
+
+	// Rota para o add products
+	router.HandleFunc("/products", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Printf("Requisição recebida do frontend: %s %s\n", r.Method, r.URL.Path)
+
+		// Lê o body para poder reutilizá-lo
+		bodyBytes, err := io.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, "Erro ao ler o corpo da requisição", http.StatusBadRequest)
+			return
+		}
+		// Recria o body para uso posterior
+		r.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
+
+		// Faz a requisição manualmente para capturar status + body
+		req, err := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/products", cfg.ProductAPIURL), bytes.NewReader(bodyBytes))
+		if err != nil {
+			http.Error(w, "Erro ao criar requisição para o Product API", http.StatusInternalServerError)
+			return
+		}
+		req.Header.Set("Content-Type", "application/json")
+
+		client := &http.Client{}
+		resp, err := client.Do(req)
+		if err != nil {
+			http.Error(w, "Erro ao comunicar com Product API", http.StatusBadGateway)
+			return
+		}
+		defer resp.Body.Close()
+
+		respBody, err := io.ReadAll(resp.Body)
+		if err != nil {
+			http.Error(w, "Erro ao ler resposta da Product API", http.StatusInternalServerError)
+			return
+		}
+
+		// Repassa o status e corpo da resposta ao frontend
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(resp.StatusCode)
+		w.Write(respBody)
+	}).Methods(http.MethodPost)
+
+	// Rota para atualizar um produto existente
+	router.HandleFunc("/products/{id}", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Printf("Requisição recebida do frontend: %s %s\n", r.Method, r.URL.Path)
+		vars := mux.Vars(r)
+		id := vars["id"]
+
+		// Encaminha para o product_api
+		updatedProduct, err := services.UpdateProduct(cfg.ProductAPIURL, id, r.Body)
+		if err != nil {
+			http.Error(w, "Erro ao atualizar produto", http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(updatedProduct)
+	}).Methods(http.MethodPut)
+
+	// Rota para deletar um produto existente
+	router.HandleFunc("/products/{id}", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Printf("Requisição recebida do frontend: %s %s\n", r.Method, r.URL.Path)
+		vars := mux.Vars(r)
+		id := vars["id"]
+
+		// Encaminha para o product_api
+		deletedProduct, err := services.DeleteProduct(cfg.ProductAPIURL, id)
+		if err != nil {
+			http.Error(w, "Erro ao deletar produto", http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(deletedProduct)
+	}).Methods(http.MethodDelete)
 }

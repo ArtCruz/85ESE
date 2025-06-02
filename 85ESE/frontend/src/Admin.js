@@ -41,7 +41,7 @@ class Admin extends React.Component {
         data.append('file', this.state.file); // Certifique-se de que o arquivo está sendo anexado
         data.append('id', this.state.id);     // Certifique-se de que o ID está sendo anexado
     
-        axios.post(window.global.api_location + '/images', data, {
+        axios.post(window.global.gateway_location + '/images', data, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             },

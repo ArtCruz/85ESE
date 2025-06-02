@@ -13,7 +13,7 @@ import Button from 'react-bootstrap/Button';
 
 import './App.css';
 
-import CoffeeList from './CoffeeList.js';
+import ProductList from './ProductList.js';
 import Admin from './Admin.js';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -30,17 +30,13 @@ function App() {
               <Nav.Link href="/">Home</Nav.Link>
               <Nav.Link href="/admin">Admin</Nav.Link>
             </Nav>
-            <Form className="d-flex">
-              <FormControl type="text" placeholder="Search" className="me-2" />
-              <Button variant="outline-success">Search</Button>
-            </Form>
           </Navbar.Collapse>
         </Navbar>
 
         <Routes>
           <Route path="/admin" element={<Admin />} />
-          <Route path="/" element={<CoffeeList />} />
-          <Route path="*" element={<CoffeeList />} />
+          <Route path="/" element={<ProductList />} />
+          <Route path="*" element={<ProductList />} />
         </Routes>
       </div>
     </Router>

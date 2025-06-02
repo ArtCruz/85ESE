@@ -15,7 +15,7 @@
 // swagger:meta
 package handlers
 
-import "gateway/product_api/data"
+import "product_api/data"
 
 //
 // NOTE: Types defined here are purely for documentation purposes
