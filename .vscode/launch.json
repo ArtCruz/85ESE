@@ -1,0 +1,26 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug Gateway",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "85ESE/gateway"
+        },
+        {
+            "name": "Debug Product API",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "85ESE/product_api"
+        },
+        {
+            "name": "Debug Images API",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "85ESE/images"
+        }
+    ]
+}
