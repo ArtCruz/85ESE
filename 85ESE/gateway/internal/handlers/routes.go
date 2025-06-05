@@ -118,4 +118,26 @@ func RegisterRoutes(router *mux.Router, cfg *config.Config) {
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(deletedProduct)
 	}).Methods(http.MethodDelete)
+
+	// Rota para buscar uma imagem específica pelo ID
+	router.HandleFunc("/images/{id}", func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		id := vars["id"]
+
+		// Monta a URL do serviço de imagens
+		imageURL := fmt.Sprintf("%s/images/%s", cfg.ImagesAPIURL, id)
+
+		// Faz o proxy da requisição GET para o serviço de imagens
+		resp, err := http.Get(imageURL)
+		if err != nil {
+			http.Error(w, "Erro ao buscar imagem", http.StatusBadGateway)
+			return
+		}
+		defer resp.Body.Close()
+
+		// Copia o header de Content-Type
+		w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
+		w.WriteHeader(resp.StatusCode)
+		io.Copy(w, resp.Body)
+	}).Methods(http.MethodGet)
 }

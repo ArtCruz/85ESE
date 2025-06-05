@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/gorilla/mux"
 	"github.com/hashicorp/go-hclog"
@@ -67,17 +68,25 @@ func (f *Files) Ping(rw http.ResponseWriter, r *http.Request) {
 	rw.Write([]byte("Pong"))
 }
 
-func (f *Files) invalidURI(uri string, rw http.ResponseWriter) {
-	f.log.Error("Invalid path", "path", uri)
-	http.Error(rw, "Invalid file path should be in the format: /[id]/[filepath]", http.StatusBadRequest)
-}
-
 // saveFile saves the contents of the request to a file
 func (f *Files) saveFile(id, path string, rw http.ResponseWriter, r io.ReadCloser) {
 	f.log.Info("Salvando arquivo para o produto", "id", id, "path", path)
 
+	// Caminho da pasta do produto
+	dir := filepath.Join("imagestore", id)
+
+	// Remove todas as imagens antigas antes de salvar a nova
+	files, err := os.ReadDir(dir)
+	if err == nil {
+		for _, file := range files {
+			if !file.IsDir() && (strings.HasSuffix(file.Name(), ".png") || strings.HasSuffix(file.Name(), ".jpg") || strings.HasSuffix(file.Name(), ".jpeg")) {
+				os.Remove(filepath.Join(dir, file.Name()))
+			}
+		}
+	}
+
 	fp := filepath.Join(id, path)
-	err := f.store.Save(fp, r)
+	err = f.store.Save(fp, r)
 	if err != nil {
 		f.log.Error("Erro ao salvar arquivo", "error", err)
 		http.Error(rw, "Erro ao salvar arquivo", http.StatusInternalServerError)
@@ -141,4 +150,27 @@ func NewLocalStorage(path string, logger hclog.Logger) *LocalStorage {
 		Path:   path,
 		Logger: logger,
 	}
+}
+
+func (f *Files) ServeProductImage(rw http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	dir := filepath.Join("imagestore", id)
+	files, err := os.ReadDir(dir)
+	if err != nil || len(files) == 0 {
+		http.NotFound(rw, r)
+		return
+	}
+
+	// Pega o primeiro arquivo de imagem
+	for _, file := range files {
+		if !file.IsDir() && (strings.HasSuffix(file.Name(), ".png") || strings.HasSuffix(file.Name(), ".jpg") || strings.HasSuffix(file.Name(), ".jpeg")) {
+			imgPath := filepath.Join(dir, file.Name())
+			http.ServeFile(rw, r, imgPath)
+			return
+		}
+	}
+
+	http.NotFound(rw, r)
 }

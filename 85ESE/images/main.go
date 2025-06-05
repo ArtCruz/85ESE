@@ -28,6 +28,7 @@ func main() {
 	// Registrar rotas
 	router.HandleFunc("/upload", fh.UploadMultipart).Methods(http.MethodPost)
 	router.HandleFunc("/ping", fh.Ping).Methods(http.MethodGet)
+	router.HandleFunc("/images/{id}", fh.ServeProductImage).Methods("GET")
 
 	// Iniciar servidor
 	port := ":9091"
