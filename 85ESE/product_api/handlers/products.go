@@ -15,7 +15,7 @@ type KeyProduct struct{}
 
 // Products handler for getting and updating products
 type Products struct {
-	log  *log.Logger
+	l    *log.Logger
 	v    *data.Validation
 	repo data.ProductRepository
 }
