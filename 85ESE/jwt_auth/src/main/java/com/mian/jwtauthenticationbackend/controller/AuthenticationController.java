@@ -32,7 +32,7 @@ public class AuthenticationController {
 
     @GetMapping("/test")
     public String test() {
-        return "API funcionando! 2321";
+        return "API funcionando! 06/06-21:37";
     }
 
 

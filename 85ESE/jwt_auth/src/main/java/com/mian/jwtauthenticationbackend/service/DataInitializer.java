@@ -13,9 +13,13 @@ import jakarta.annotation.PostConstruct;
 public class DataInitializer {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public DataInitializer(UserRepository userRepository) {
+    public DataInitializer(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        System.out.println("DataInitializer carregado.");
+        init();
     }
 
     @PostConstruct
@@ -26,7 +30,8 @@ public class DataInitializer {
             user.setUsername("admin");
             user.setFirstName("Admin");
             user.setLastname("User");
-            user.setPassword("admin");
+            // user.setPassword("admin");
+            user.setPassword(passwordEncoder.encode("admin"));
             user.setRole(Role.ADMIN);
             userRepository.save(user);
 
