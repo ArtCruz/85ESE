@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"time"
 
+
 	gohandlers "github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
@@ -18,14 +19,18 @@ func main() {
 	// Criar roteador
 	router := mux.NewRouter()
 
+	// Servir arquivos estáticos da pasta "static"
+	fs := http.FileServer(http.Dir("./static"))
+	router.PathPrefix("/").Handler(fs)
+
 	// Registrar handlers
 	handlers.RegisterRoutes(router, cfg)
 
 	// Configurar CORS
 	ch := gohandlers.CORS(
-		gohandlers.AllowedOrigins([]string{"http://localhost:3000"}), // Origem do frontend
+		gohandlers.AllowedOrigins([]string{"http://localhost:3000", "http://localhost:7071"}), // Origem do frontend
 		gohandlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE"}),
-		gohandlers.AllowedHeaders([]string{"Content-Type"}),
+		gohandlers.AllowedHeaders([]string{"Content-Type", "Authorization"}),
 	)
 
 	// Configurar servidor HTTP
@@ -41,4 +46,6 @@ func main() {
 	if err := srv.ListenAndServe(); err != nil {
 		log.Fatalf("Erro ao iniciar o servidor: %v", err)
 	}
+
+
 }

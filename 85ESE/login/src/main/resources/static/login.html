@@ -22,7 +22,7 @@
             const password = document.getElementById("password").value;
 
             try {
-                const response = await fetch("http://localhost:7070/login", {
+                const response = await fetch("http://localhost:8080/gateway/auth", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ username, password })
@@ -31,7 +31,10 @@
                 if (response.ok) {
                     const data = await response.json();
                     localStorage.setItem("token", data.token); // armazenar o JWT
-                    document.getElementById("mensagem").innerText = "Login bem-sucedido! Token armazenado.";
+                    document.getElementById("mensagem").innerText = "Login bem-sucedido! Redirecionando...";
+                    setTimeout(() => {
+                        window.location.href = "http://localhost:3000/";
+                    }, 2000);
                 } else {
                     document.getElementById("mensagem").innerText = "Falha no login. Código " + response.status;
                 }

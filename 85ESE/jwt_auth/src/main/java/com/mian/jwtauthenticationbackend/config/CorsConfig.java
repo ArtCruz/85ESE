@@ -13,8 +13,8 @@ public class CorsConfig {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**") // Libera todos os endpoints
-                        .allowedOrigins("http://localhost:7071") // Libera a origem do login.html
+                registry.addMapping("/**") 
+                        .allowedOrigins("http://localhost:8080") 
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
                         .allowCredentials(true);

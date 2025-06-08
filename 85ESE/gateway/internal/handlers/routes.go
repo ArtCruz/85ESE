@@ -140,4 +140,60 @@ func RegisterRoutes(router *mux.Router, cfg *config.Config) {
 		w.WriteHeader(resp.StatusCode)
 		io.Copy(w, resp.Body)
 	}).Methods(http.MethodGet)
+
+	// Rota para autenticação: login
+	router.HandleFunc("/login.html", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println("GET /login.html proxy para frontend")
+
+		resp, err := http.Get(fmt.Sprintf("%s/login.html", cfg.FrontendURL))
+		if err != nil {
+			http.Error(w, "Erro ao buscar página de login", http.StatusBadGateway)
+			return
+		}
+		defer resp.Body.Close()
+
+		for k, vv := range resp.Header {
+			for _, v := range vv {
+				w.Header().Add(k, v)
+			}
+		}
+		w.WriteHeader(resp.StatusCode)
+		io.Copy(w, resp.Body)
+	}).Methods(http.MethodGet)
+
+	
+}
+
+func forwardRequest(originalReq *http.Request, url string) (*http.Response, error) {
+	body, err := io.ReadAll(originalReq.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	newReq, err := http.NewRequest(originalReq.Method, url, bytes.NewBuffer(body))
+	if err != nil {
+		return nil, err
+	}
+
+	// Copia os headers
+	for name, values := range originalReq.Header {
+		for _, value := range values {
+			newReq.Header.Add(name, value)
+		}
+	}
+
+	client := &http.Client{}
+	return client.Do(newReq)
+}
+
+// Copia a resposta do serviço para o ResponseWriter
+func copyResponse(w http.ResponseWriter, resp *http.Response) error {
+	for name, values := range resp.Header {
+		for _, value := range values {
+			w.Header().Add(name, value)
+		}
+	}
+	w.WriteHeader(resp.StatusCode)
+	_, err := io.Copy(w, resp.Body)
+	return err
 }

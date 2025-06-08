@@ -37,6 +37,7 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.POST, "/login").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/register").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/test").permitAll()
+                                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                                 // .permitAll()
                                 .anyRequest()
                                 .authenticated()).userDetailsService(userDetailsServiceImp)

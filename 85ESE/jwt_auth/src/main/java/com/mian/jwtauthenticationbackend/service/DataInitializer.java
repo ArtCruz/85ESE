@@ -24,7 +24,6 @@ public class DataInitializer {
 
     @PostConstruct
     public void init() {
-        if (userRepository.findByUsername("admin").isEmpty()) {
             User user = new User();
             user.setId(1);
             user.setUsername("admin");
@@ -39,5 +38,5 @@ public class DataInitializer {
             System.out.println("Username: " + user.getUsername());
             System.out.println("Senha: " + user.getPassword());
         }
-    }
+    
 }
