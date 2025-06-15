@@ -48,7 +48,7 @@ class ProductList extends React.Component {
     componentDidMount() {
         this.readData();
     }
-
+// testes
     readData() {
         axios.get(window.global.gateway_location + '/products')
             .then((response) => {
