@@ -14,6 +14,7 @@ import Button from 'react-bootstrap/Button';
 import './App.css';
 
 import ProductList from './ProductList.js';
+import OrderList from './OrderList';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useParams } from "react-router-dom";
@@ -32,11 +33,16 @@ function App() {
           <Navbar.Brand href="/">Coffee Shop</Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
+            <Nav className="mr-auto">
+              <Nav.Link href="/">Produtos</Nav.Link>
+              <Nav.Link href="/orders">Ordem de Compra</Nav.Link>
+            </Nav>
           </Navbar.Collapse>
         </Navbar>
 
         <Routes>
           <Route path="/upload-image/:id" element={<UploadImageWrapper />} />
+          <Route path="/orders" element={<OrderList />} />
           <Route path="/" element={<ProductList />} />
           <Route path="*" element={<ProductList />} />
         </Routes>

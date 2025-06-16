@@ -15,6 +15,13 @@ services:
     environment:
       - PORT=9091
 
+  ordem_compra:
+    build: ./ordem_compra
+    ports:
+      - "9092:9092"
+    environment:
+      - PORT=9092
+
   gateway:
     build: ./gateway
     ports:
@@ -22,6 +29,7 @@ services:
     environment:
       - PRODUCT_API_URL=http://product_api:9090
       - IMAGES_API_URL=http://images:9091
+      - ORDERS_API_URL=http://ordem_compra:9092
       - PORT=8080
     depends_on:
       - product_api

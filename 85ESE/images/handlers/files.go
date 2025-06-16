@@ -164,6 +164,7 @@ func (f *Files) ServeProductImage(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	// Pega o primeiro arquivo de imagem
+	fmt.Println("Busca Imagem com ID:", id)
 	for _, file := range files {
 		if !file.IsDir() && (strings.HasSuffix(file.Name(), ".png") || strings.HasSuffix(file.Name(), ".jpg") || strings.HasSuffix(file.Name(), ".jpeg")) {
 			imgPath := filepath.Join(dir, file.Name())

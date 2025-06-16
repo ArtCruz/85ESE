@@ -140,4 +140,28 @@ func RegisterRoutes(router *mux.Router, cfg *config.Config) {
 		w.WriteHeader(resp.StatusCode)
 		io.Copy(w, resp.Body)
 	}).Methods(http.MethodGet)
+
+	// Rota para o serviço de ordens
+	router.HandleFunc("/orders", func(w http.ResponseWriter, r *http.Request) {
+		// Proxy GET e POST para o serviço ordem_compra
+		url := fmt.Sprintf("%s/orders", cfg.OrdersAPIURL) // Adicione OrdersAPIURL no config.go
+		var resp *http.Response
+		var err error
+
+		if r.Method == http.MethodGet {
+			resp, err = http.Get(url)
+		} else if r.Method == http.MethodPost {
+			bodyBytes, _ := io.ReadAll(r.Body)
+			resp, err = http.Post(url, "application/json", bytes.NewReader(bodyBytes))
+		}
+
+		if err != nil {
+			http.Error(w, "Erro ao comunicar com ordem_compra", http.StatusBadGateway)
+			return
+		}
+		defer resp.Body.Close()
+		w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
+		w.WriteHeader(resp.StatusCode)
+		io.Copy(w, resp.Body)
+	}).Methods(http.MethodGet, http.MethodPost)
 }

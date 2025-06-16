@@ -18,7 +18,7 @@ func (p *Products) ListAll(rw http.ResponseWriter, r *http.Request) {
 
 	fmt.Printf("Requisição recebida do gateway: %s %s\n", r.Method, r.URL.Path)
 
-	prods := data.GetProducts()
+	prods := p.repo.GetAll()
 
 	err := data.ToJSON(prods, rw)
 	if err != nil {

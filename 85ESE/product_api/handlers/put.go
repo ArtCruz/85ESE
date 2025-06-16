@@ -32,7 +32,7 @@ func (p *Products) Update(rw http.ResponseWriter, r *http.Request) {
 	prod := r.Context().Value(KeyProduct{}).(*data.Product)
 	prod.ID = id
 
-	err = data.UpdateProduct(*prod)
+	err = p.repo.Update(*prod)
 	if err != nil {
 		http.Error(rw, "Produto não encontrado", http.StatusNotFound)
 		return

@@ -7,6 +7,6 @@ COPY . .
 RUN go mod download
 RUN go build -o main .
 
-EXPOSE 9090
+EXPOSE 9092
 
 CMD ["./main"]
