@@ -161,8 +161,49 @@ func RegisterRoutes(router *mux.Router, cfg *config.Config) {
 		io.Copy(w, resp.Body)
 	}).Methods(http.MethodGet)
 
+	router.HandleFunc("/gateway/auth", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println("Proxy: POST /gateway/auth para serviço de autenticação")
+
+		// Recria o body para reutilização
+		bodyBytes, err := io.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, "Erro ao ler o corpo da requisição", http.StatusBadRequest)
+			return
+		}
+		r.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
+
+		// Cria a requisição para o AuthAPI
+		req, err := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/auth", cfg.AuthAPIURL), bytes.NewBuffer(bodyBytes))
+		if err != nil {
+			http.Error(w, "Erro ao criar requisição para Auth API", http.StatusInternalServerError)
+			return
+		}
+		req.Header.Set("Content-Type", "application/json")
+
+		client := &http.Client{}
+		resp, err := client.Do(req)
+		if err != nil {
+			http.Error(w, "Erro ao comunicar com Auth API", http.StatusBadGateway)
+			return
+		}
+		defer resp.Body.Close()
+
+		// Copia a resposta para o cliente (frontend)
+		copyResponse(w, resp)
+	}).Methods(http.MethodPost)
+
+
+	router.HandleFunc("/login", LoginPageHandler()).Methods("GET")
+	router.HandleFunc("/auth", Auth(cfg)).Methods("POST")
+
+
 	
 }
+
+
+
+
+
 
 func forwardRequest(originalReq *http.Request, url string) (*http.Response, error) {
 	body, err := io.ReadAll(originalReq.Body)

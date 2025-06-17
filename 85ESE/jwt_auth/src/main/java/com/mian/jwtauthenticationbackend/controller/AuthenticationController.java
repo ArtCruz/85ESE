@@ -23,7 +23,14 @@ public class AuthenticationController {
             @RequestBody User request){
         return ResponseEntity.ok(authSerive.register(request));
     }
-    @PostMapping("/login")
+    // @PostMapping("/login")
+    // public ResponseEntity<AuthenticationResponse> login(
+    //         @RequestBody User request)
+    // {
+    //     return ResponseEntity.ok(authSerive.authenticationResponse(request));
+    // }
+
+    @PostMapping("/auth")
     public ResponseEntity<AuthenticationResponse> login(
             @RequestBody User request)
     {
