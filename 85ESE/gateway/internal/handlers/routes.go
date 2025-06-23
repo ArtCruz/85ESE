@@ -141,7 +141,26 @@ func RegisterRoutes(router *mux.Router, cfg *config.Config) {
 		io.Copy(w, resp.Body)
 	}).Methods(http.MethodGet)
 
-	// Rota para o serviço de ordens
+	// Rota para autenticação: login
+	// router.HandleFunc("/login.html", func(w http.ResponseWriter, r *http.Request) {
+	// 	fmt.Println("GET /login.html proxy para frontend")
+
+	// 	resp, err := http.Get(fmt.Sprintf("%s/login.html", cfg.FrontendURL))
+	// 	if err != nil {
+	// 		http.Error(w, "Erro ao buscar página de login", http.StatusBadGateway)
+	// 		return
+	// 	}
+	// 	defer resp.Body.Close()
+
+	// 	for k, vv := range resp.Header {
+	// 		for _, v := range vv {
+	// 			w.Header().Add(k, v)
+	// 		}
+	// 	}
+	// 	w.WriteHeader(resp.StatusCode)
+	// 	io.Copy(w, resp.Body)
+	// }).Methods(http.MethodGet)
+
 	router.HandleFunc("/orders", func(w http.ResponseWriter, r *http.Request) {
 		// Proxy GET e POST para o serviço ordem_compra
 		url := fmt.Sprintf("%s/orders", cfg.OrdersAPIURL) // Adicione OrdersAPIURL no config.go
@@ -164,4 +183,93 @@ func RegisterRoutes(router *mux.Router, cfg *config.Config) {
 		w.WriteHeader(resp.StatusCode)
 		io.Copy(w, resp.Body)
 	}).Methods(http.MethodGet, http.MethodPost)
+
+	// Rota para autenticação: login
+	router.HandleFunc("/login.html", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println("GET /login.html proxy para frontend")
+
+		resp, err := http.Get(fmt.Sprintf("%s/login.html", cfg.FrontendURL))
+		if err != nil {
+			http.Error(w, "Erro ao buscar página de login", http.StatusBadGateway)
+			return
+		}
+		defer resp.Body.Close()
+
+		for k, vv := range resp.Header {
+			for _, v := range vv {
+				w.Header().Add(k, v)
+			}
+		}
+		w.WriteHeader(resp.StatusCode)
+		io.Copy(w, resp.Body)
+	}).Methods(http.MethodGet)
+
+	router.HandleFunc("/gateway/auth", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println("Proxy: POST /gateway/auth para serviço de autenticação")
+
+		// Recria o body para reutilização
+		bodyBytes, err := io.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, "Erro ao ler o corpo da requisição", http.StatusBadRequest)
+			return
+		}
+		r.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
+
+		// Cria a requisição para o AuthAPI
+		req, err := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/auth", cfg.AuthAPIURL), bytes.NewBuffer(bodyBytes))
+		if err != nil {
+			http.Error(w, "Erro ao criar requisição para Auth API", http.StatusInternalServerError)
+			return
+		}
+		req.Header.Set("Content-Type", "application/json")
+
+		client := &http.Client{}
+		resp, err := client.Do(req)
+		if err != nil {
+			http.Error(w, "Erro ao comunicar com Auth API", http.StatusBadGateway)
+			return
+		}
+		defer resp.Body.Close()
+
+		// Copia a resposta para o cliente (frontend)
+		copyResponse(w, resp)
+	}).Methods(http.MethodPost)
+
+	router.HandleFunc("/login", LoginPageHandler()).Methods("GET")
+	router.HandleFunc("/auth", Auth(cfg)).Methods("POST")
+
+}
+
+func forwardRequest(originalReq *http.Request, url string) (*http.Response, error) {
+	body, err := io.ReadAll(originalReq.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	newReq, err := http.NewRequest(originalReq.Method, url, bytes.NewBuffer(body))
+	if err != nil {
+		return nil, err
+	}
+
+	// Copia os headers
+	for name, values := range originalReq.Header {
+		for _, value := range values {
+			newReq.Header.Add(name, value)
+		}
+	}
+
+	client := &http.Client{}
+	return client.Do(newReq)
+}
+
+// Copia a resposta do serviço para o ResponseWriter
+func copyResponse(w http.ResponseWriter, resp *http.Response) error {
+	for name, values := range resp.Header {
+		for _, value := range values {
+			w.Header().Add(name, value)
+		}
+	}
+	w.WriteHeader(resp.StatusCode)
+	_, err := io.Copy(w, resp.Body)
+	return err
 }

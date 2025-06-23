@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Login com JWT</title>
+</head>
+<body>
+    <h1>Login</h1>
+    <form id="loginForm">
+        <input type="text" id="username" placeholder="Usuário" required />
+        <input type="password" id="password" placeholder="Senha" required />
+        <button type="submit">Entrar</button>
+    </form>
+
+    <p id="mensagem"></p>
+
+    <script>
+        document.getElementById("loginForm").addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+
+            try {
+                const response = await fetch("http://localhost:8080/gateway/auth", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username, password })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    localStorage.setItem("token", data.token); // armazenar o JWT
+                    document.getElementById("mensagem").innerText = "Login bem-sucedido! Redirecionando...";
+                    setTimeout(() => {
+                        window.location.href = "http://localhost:3000/";
+                    }, 2000);
+                } else {
+                    document.getElementById("mensagem").innerText = "Falha no login. Código " + response.status;
+                }
+            } catch (error) {
+                document.getElementById("mensagem").innerText = "Erro de rede ou servidor.";
+                console.error("Erro:", error);
+            }
+        });
+    </script>
+</body>
+</html>
