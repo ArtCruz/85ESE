@@ -18,16 +18,16 @@ func main() {
 	// Criar roteador
 	router := mux.NewRouter()
 
-	// Servir arquivos estáticos da pasta "static"
+	// REGISTRE AS ROTAS PRIMEIRO!
+	handlers.RegisterRoutes(router, cfg)
+
+	// Depois, sirva arquivos estáticos
 	fs := http.FileServer(http.Dir("./static"))
 	router.PathPrefix("/").Handler(fs)
 
-	// Registrar handlers
-	handlers.RegisterRoutes(router, cfg)
-
 	// Configurar CORS
 	ch := gohandlers.CORS(
-		gohandlers.AllowedOrigins([]string{"http://localhost:3000", "http://localhost:7071"}), // Origem do frontend
+		gohandlers.AllowedOrigins([]string{"http://localhost:3000", "http://localhost:7071"}),
 		gohandlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE"}),
 		gohandlers.AllowedHeaders([]string{"Content-Type", "Authorization"}),
 	)
