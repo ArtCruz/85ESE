@@ -52,6 +52,7 @@ public class AuthenticationService {
     // }
 
     public AuthenticationResponse authenticationResponse(User request) {
+        System.out.println("CHEGOUUUU");
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(

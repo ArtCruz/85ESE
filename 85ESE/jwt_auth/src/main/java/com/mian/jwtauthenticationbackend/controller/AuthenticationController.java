@@ -31,10 +31,11 @@ public class AuthenticationController {
     // }
 
     @PostMapping("/auth")
-    public ResponseEntity<AuthenticationResponse> login(
-            @RequestBody User request)
-    {
-        return ResponseEntity.ok(authSerive.authenticationResponse(request));
+    public ResponseEntity<AuthenticationResponse> login(@RequestBody User request) {
+        System.out.println("Recebida requisição /auth do gateway para jwt_auth! Usuário: " + request.getUsername());
+        AuthenticationResponse response = authSerive.authenticationResponse(request);
+        System.out.println("Resposta do serviço de autenticação: " + response);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/test")

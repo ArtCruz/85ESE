@@ -6,7 +6,6 @@ import Form from 'react-bootstrap/Form';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-// Componente funcional para o botão Imagem
 function ImagemButton({ productId }) {
     const navigate = useNavigate();
     return (

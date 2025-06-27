@@ -3,52 +3,21 @@ version: '3.8'
 services:
   product_api:
     build: ./product_api
-    ports:
-      - "9090:9090"
     environment:
       - PORT=9090
 
   images:
     build: ./images
-    ports:
-      - "9091:9091"
     environment:
       - PORT=9091
 
   ordem_compra:
     build: ./ordem_compra
-    ports:
-      - "9092:9092"
     environment:
       - PORT=9092
 
-  gateway:
-    build: ./gateway
-    ports:
-      - "8080:8080"
-    environment:
-      - PRODUCT_API_URL=http://product_api:9090
-      - IMAGES_API_URL=http://images:9091
-      - ORDERS_API_URL=http://ordem_compra:9092
-      - AUTH_API_URL=http://jwt_auth:7070
-      - PORT=8080
-    depends_on:
-      - product_api
-      - images
-
-  frontend:
-    build: ./frontend
-    ports:
-      - "3000:3000"
-    environment:
-      - REACT_APP_GATEWAY_URL=http://localhost:8080
-    depends_on:
-      - gateway
-
-  jwt_auth:
+  jwtauth:
     build: ./jwt_auth
-    ports:
-      - "7070:7070"
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/auth
       - SPRING_DATASOURCE_USERNAME=postgres
@@ -58,14 +27,37 @@ services:
 
   login:
     build: ./login
-    ports:
-      - "7071:7071"
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/auth
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=efai@123
     depends_on:
       - postgres
+
+  gateway:
+    build: ./gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - PRODUCT_API_URL=http://product_api:9090
+      - IMAGES_API_URL=http://images:9091
+      - ORDERS_API_URL=http://ordem_compra:9092
+      - AUTH_API_URL=http://jwtauth:7070
+      - PORT=8080
+    depends_on:
+      - product_api
+      - images
+      - ordem_compra
+      - jwtauth
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_GATEWAY_URL=http://localhost:8080
+    depends_on:
+      - gateway
 
   postgres:
     image: postgres:16
