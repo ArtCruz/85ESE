@@ -23,7 +23,7 @@ services:
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/auth
       - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=efai@123
+      - SPRING_DATASOURCE_PASSWORD=SENHA_POSTGRES
     depends_on:
       - postgres
 
@@ -34,7 +34,7 @@ services:
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/auth
       - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=efai@123
+      - SPRING_DATASOURCE_PASSWORD=SENHA_POSTGRES
     depends_on:
       - postgres
 
@@ -68,7 +68,7 @@ services:
     restart: always
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: efai@123
+      POSTGRES_PASSWORD: SENHA_POSTGRES
       POSTGRES_DB: auth
     ports:
       - "5432:5432"
