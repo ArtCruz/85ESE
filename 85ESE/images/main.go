@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/go-openapi/runtime/middleware"
 	"github.com/gorilla/mux"
 	hclog "github.com/hashicorp/go-hclog"
 )
@@ -29,6 +30,12 @@ func main() {
 	router.HandleFunc("/upload", fh.UploadMultipart).Methods(http.MethodPost)
 	router.HandleFunc("/ping", fh.Ping).Methods(http.MethodGet)
 	router.HandleFunc("/images/{id}", fh.ServeProductImage).Methods("GET")
+
+	// Servir documentação Swagger
+	opts := middleware.RedocOpts{SpecURL: "/swagger.yaml"}
+	sh := middleware.Redoc(opts, nil)
+	router.Handle("/docs", sh)
+	router.Handle("/swagger.yaml", http.FileServer(http.Dir("./")))
 
 	// Iniciar servidor
 	port := ":9091"

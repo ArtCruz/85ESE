@@ -1,6 +1,7 @@
-// Package classification of Product API
+// Package classification Product API.
 //
-// Documentation for Product API
+// Documentação da API de Produtos.
+// Esta API permite gerenciar produtos, incluindo cadastro, consulta, atualização e remoção.
 //
 //	Schemes: http
 //	BasePath: /

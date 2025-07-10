@@ -8,13 +8,22 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// swagger:route PUT /products products updateProduct
-// Update a products details
+// swagger:route PUT /products/{id} products updateProduct
+// Atualizar um produto
+//
+// Atualiza os dados de um produto existente.
+//
+// parameters:
+//   + name: id
+//     in: path
+//     description: ID do produto
+//     required: true
+//     type: integer
 //
 // responses:
-//	201: noContentResponse
-//  404: errorResponse
-//  422: errorValidation
+//   200: productResponse
+//   404: errorResponse
+//   422: errorValidation
 
 // Update handles PUT requests to update products
 func (p *Products) Update(rw http.ResponseWriter, r *http.Request) {

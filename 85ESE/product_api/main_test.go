@@ -23,3 +23,9 @@ func TestOurClient(t *testing.T) {
 	fmt.Printf("%#v", prod.GetPayload()[0])
 	t.Fail()
 }
+
+func TestSomaSimples(t *testing.T) {
+	if 1+1 != 2 {
+		t.Error("Soma simples falhou")
+	}
+}

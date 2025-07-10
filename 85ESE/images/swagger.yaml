@@ -1,0 +1,107 @@
+openapi: 3.0.3
+info:
+  title: API de Imagens
+  description: API para upload, consulta e download de imagens associadas a produtos.
+  version: "1.0.0"
+servers:
+  - url: http://localhost:9091
+tags:
+  - name: images
+    description: Operações relacionadas a imagens de produtos
+
+paths:
+  /upload:
+    post:
+      tags:
+        - images
+      summary: Fazer upload de uma imagem para um produto
+      description: Envia uma imagem associada a um produto.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: ID do produto
+                  example: "1"
+                file:
+                  type: string
+                  format: binary
+                  description: Arquivo de imagem
+      responses:
+        '200':
+          description: Upload realizado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/uploadResponse'
+        '400':
+          description: Erro na requisição
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+        '500':
+          description: Erro interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+
+  /images/{id}:
+    get:
+      tags:
+        - images
+      summary: Obter imagem de um produto
+      description: Retorna a imagem associada ao produto.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID do produto
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Imagem encontrada
+          content:
+            image/png: {}
+            image/jpeg: {}
+        '404':
+          description: Imagem não encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+
+  /ping:
+    get:
+      tags:
+        - images
+      summary: Healthcheck do serviço de imagens
+      description: Verifica se o serviço está online.
+      responses:
+        '200':
+          description: Serviço online
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/uploadResponse'
+
+components:
+  schemas:
+    uploadResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Arquivo salvo com sucesso
+    errorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Erro ao salvar arquivo

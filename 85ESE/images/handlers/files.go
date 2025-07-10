@@ -25,6 +25,19 @@ func NewFiles(s files.Storage, l hclog.Logger) *Files {
 }
 
 // UploadREST implements the http.Handler interface
+// swagger:route POST /upload images uploadImage
+//
+// # Fazer upload de uma imagem para um produto
+//
+// Envia uma imagem associada a um produto.
+//
+// Consome multipart/form-data.
+//
+// responses:
+//
+//	200: uploadResponse
+//	400: errorResponse
+//	500: errorResponse
 func (f *Files) UploadREST(rw http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
@@ -175,3 +188,31 @@ func (f *Files) ServeProductImage(rw http.ResponseWriter, r *http.Request) {
 
 	http.NotFound(rw, r)
 }
+
+// swagger:route GET /images/{id} images getImage
+// Obter imagem de um produto
+//
+// Retorna a imagem associada ao produto.
+//
+// parameters:
+//   + name: id
+//     in: path
+//     description: ID do produto
+//     required: true
+//     type: string
+//
+// produces:
+//   - image/png
+//   - image/jpeg
+//
+// responses:
+//   200: file
+//   404: errorResponse
+
+// swagger:route GET /ping images ping
+// Healthcheck do serviço de imagens
+//
+// Verifica se o serviço está online.
+//
+// responses:
+//   200: uploadResponse

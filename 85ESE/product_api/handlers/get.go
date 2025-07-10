@@ -7,9 +7,12 @@ import (
 )
 
 // swagger:route GET /products products listProducts
-// Return a list of products from the database
+// Listar todos os produtos
+//
+// Retorna uma lista de todos os produtos cadastrados.
+//
 // responses:
-//	200: productsResponse
+//   200: productsResponse
 
 // ListAll handles GET requests and returns all current products
 func (p *Products) ListAll(rw http.ResponseWriter, r *http.Request) {
@@ -29,10 +32,20 @@ func (p *Products) ListAll(rw http.ResponseWriter, r *http.Request) {
 }
 
 // swagger:route GET /products/{id} products listSingleProduct
-// Return a list of products from the database
+// Buscar produto por ID
+//
+// Retorna os detalhes de um produto específico.
+//
+// parameters:
+//   + name: id
+//     in: path
+//     description: ID do produto
+//     required: true
+//     type: integer
+//
 // responses:
-//	200: productResponse
-//	404: errorResponse
+//   200: productResponse
+//   404: errorResponse
 
 // ListSingle handles GET requests
 func (p *Products) ListSingle(rw http.ResponseWriter, r *http.Request) {

@@ -3,16 +3,22 @@ version: '3.8'
 services:
   product_api:
     build: ./product_api #
+    ports:
+      - "9090:9090"
     environment:
       - PORT=9090
 
   images:
     build: ./images
+    ports:
+      - "9091:9091"
     environment:
       - PORT=9091
 
   ordem_compra:
     build: ./ordem_compra
+    ports:
+      - "9092:9092"
     environment:
       - PORT=9092
 
@@ -23,7 +29,7 @@ services:
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/auth
       - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=SENHA_POSTGRES
+      - SPRING_DATASOURCE_PASSWORD=efai@123
     depends_on:
       - postgres
 
@@ -34,7 +40,7 @@ services:
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/auth
       - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=SENHA_POSTGRES
+      - SPRING_DATASOURCE_PASSWORD=efai@123
     depends_on:
       - postgres
 
@@ -68,7 +74,7 @@ services:
     restart: always
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: SENHA_POSTGRES
+      POSTGRES_PASSWORD: efai@123
       POSTGRES_DB: auth
     ports:
       - "5432:5432"

@@ -6,12 +6,14 @@ import (
 )
 
 // swagger:route POST /products products createProduct
-// Create a new product
+// Criar um novo produto
+//
+// Adiciona um novo produto ao sistema.
 //
 // responses:
-//	200: productResponse
-//  422: errorValidation
-//  501: errorResponse
+//   201: productResponse
+//   422: errorValidation
+//   500: errorResponse
 
 // Create handles POST requests to add new products
 func (p *Products) Create(rw http.ResponseWriter, r *http.Request) {

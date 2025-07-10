@@ -11,6 +11,7 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/go-openapi/runtime/middleware"
 	gohandlers "github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/nicholasjackson/env"
@@ -27,12 +28,19 @@ func main() {
 
 	sm := mux.NewRouter()
 
+	// handlers para API
 	getR := sm.Methods(http.MethodGet).Subrouter()
 	getR.HandleFunc("/orders", oh.ListAll)
 	getR.HandleFunc("/orders/{id:[0-9]+}", oh.ListSingle)
 
 	postR := sm.Methods(http.MethodPost).Subrouter()
 	postR.HandleFunc("/orders", oh.Create)
+
+	// Servir documentação Swagger
+	opts := middleware.RedocOpts{SpecURL: "/swagger.yaml"}
+	sh := middleware.Redoc(opts, nil)
+	getR.Handle("/docs", sh)
+	getR.Handle("/swagger.yaml", http.FileServer(http.Dir("./")))
 
 	ch := gohandlers.CORS(
 		gohandlers.AllowedOrigins([]string{"http://localhost:8080"}),

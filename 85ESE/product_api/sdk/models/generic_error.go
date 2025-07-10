@@ -12,13 +12,12 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// GenericError GenericError is a generic error message returned by a server
-//
-// swagger:model GenericError
+// GenericError Erro genérico da API
+// swagger:model
 type GenericError struct {
 
-	// message
-	Message string `json:"message,omitempty"`
+	// Mensagem de erro
+	Message string `json:"message"`
 }
 
 // Validate validates this generic error

@@ -2,10 +2,15 @@ package data
 
 import "fmt"
 
+// Ordem de Compra representa um pedido realizado por um cliente.
+// swagger:model
 type Order struct {
-	ID        int `json:"id"`
+	// ID da ordem de compra
+	ID int `json:"id"`
+	// ID do produto
 	ProductID int `json:"product_id"`
-	Quantity  int `json:"quantity"`
+	// Quantidade do produto
+	Quantity int `json:"quantity"`
 }
 
 var orders []*Order
