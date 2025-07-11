@@ -45,7 +45,7 @@ func TestProductInvalidSKUReturnsErr(t *testing.T) {
 	}
 }
 
-func TestProductsToJSON(t *testing.T) {
+func TestProductsToJSON(t *testing.T) { //
 	ps := []*Product{
 		{
 			Name:  "abc",
