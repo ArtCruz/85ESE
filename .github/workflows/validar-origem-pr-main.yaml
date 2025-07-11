@@ -9,6 +9,7 @@ jobs:
   verificar-origem:
     name: Verificar se origem do PR é 'dev'
     runs-on: ubuntu-latest
+    if: github.base_ref == 'main'
     steps:
       - name: Validando branch de origem
         run: |
