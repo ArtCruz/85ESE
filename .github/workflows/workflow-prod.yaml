@@ -9,7 +9,22 @@ on:
       - main
 
 jobs:
+  verificar-origem:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verificando branch de origem
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "PR vindo de: ${{ github.head_ref }}"
+          if [[ "${{ github.head_ref }}" != "dev" ]]; then
+            echo "❌ Pull Request para 'main' só é permitido se vier da branch 'dev'."
+            exit 1
+          else
+            echo "✅ Origem válida."
+          fi
+
   prod-pipeline:
+    needs: verificar-origem
     runs-on: ubuntu-latest
 
     steps:
