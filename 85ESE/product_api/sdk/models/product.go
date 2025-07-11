@@ -87,7 +87,7 @@ func (m *Product) validateDescription(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Product) validateID(formats strfmt.Registry) error {
+func (m *Product) validateID(formats strfmt.Registry) error { //
 	if swag.IsZero(m.ID) { // not required
 		return nil
 	}
