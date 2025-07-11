@@ -9,6 +9,9 @@ import (
 
 	gohandlers "github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
+
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+
 )
 
 func main() {
@@ -17,6 +20,10 @@ func main() {
 
 	// Criar roteador
 	router := mux.NewRouter()
+
+	// ➕ Adicionar rota para métricas do Prometheus
+	router.Handle("/metrics", promhttp.Handler())
+
 
 	// REGISTRE AS ROTAS PRIMEIRO!
 	handlers.RegisterRoutes(router, cfg)

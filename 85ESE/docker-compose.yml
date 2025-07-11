@@ -7,6 +7,7 @@ services:
       - "9090:9090"
     environment:
       - PORT=9090
+    image: raissaduarte17/product_api:latest
 
   images:
     build: ./images
@@ -14,9 +15,12 @@ services:
       - "9091:9091"
     environment:
       - PORT=9091
+    image: raissaduarte17/images:latest
+
 
   ordem_compra:
     build: ./ordem_compra
+    image: raissaduarte17/ordem_compra:latest
     ports:
       - "9092:9092"
     environment:
@@ -24,28 +28,31 @@ services:
 
   jwtauth:
     build: ./jwt_auth
+    image: raissaduarte17/jwtauth:latest
     ports:
       - "7070:7070"
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/auth
       - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=efai@123
+      - SPRING_DATASOURCE_PASSWORD=postgres
     depends_on:
       - postgres
 
   login:
     build: ./login
+    image: raissaduarte17/login:latest
     ports:
       - "7071:7071"
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/auth
       - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=efai@123
+      - SPRING_DATASOURCE_PASSWORD=postgres
     depends_on:
       - postgres
 
   gateway:
     build: ./gateway
+    image: raissaduarte17/gateway:latest
     ports:
       - "8080:8080"
     environment:
@@ -62,6 +69,7 @@ services:
 
   frontend:
     build: ./frontend
+    image: raissaduarte17/frontend:latest
     ports:
       - "3000:3000"
     environment:
@@ -74,12 +82,33 @@ services:
     restart: always
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: efai@123
+      POSTGRES_PASSWORD: postgres
       POSTGRES_DB: auth
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "2090:9090"
+    depends_on:
+      - gateway
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - "2000:3000"
+    volumes:
+      - grafana-storage:/var/lib/grafana
+
 volumes:
   postgres_data:
+  grafana-storage:
+
+
