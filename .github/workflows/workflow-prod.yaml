@@ -20,7 +20,12 @@ jobs:
         with:
           go-version: '1.21'
 
-      - name: Rodar testes na produção
+      - name: Rodar testes do product_api
         run: |
           cd 85ESE/product_api
+          go test ./...
+
+      - name: Rodar testes do images
+        run: |
+          cd 85ESE/images
           go test ./...
