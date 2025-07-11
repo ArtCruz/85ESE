@@ -27,7 +27,7 @@ type Product struct {
 
 type Products []*Product
 
-func GetProducts() Products {
+func GetProducts() Products { // teste
 	GetLogger().Println("Listando todos os produtos")
 	return productList
 }
