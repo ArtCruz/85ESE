@@ -16,5 +16,5 @@ jobs:
 
       - name: Run Go tests
         run: |
-          cd product_api
+          cd 85ESE/product_api
           go test ./...
