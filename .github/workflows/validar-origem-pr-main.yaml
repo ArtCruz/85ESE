@@ -1,0 +1,21 @@
+name: Validar origem do PR para main
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  verificar-origem:
+    name: Verificar se origem do PR é 'dev'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validando branch de origem
+        run: |
+          echo "PR vindo de: ${{ github.head_ref }}"
+          if [[ "${{ github.head_ref }}" != "dev" ]]; then
+            echo "❌ Pull Request para 'main' só é permitido se vier da branch 'dev'."
+            exit 1
+          else
+            echo "✅ Origem válida."
+          fi
