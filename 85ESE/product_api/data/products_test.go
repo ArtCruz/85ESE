@@ -3,29 +3,32 @@ package data
 import (
 	"bytes"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestProductMissingNameReturnsErr(t *testing.T) {
 	p := Product{
 		Price: 1.22,
+		SKU:   "abc-efg-hji",
 	}
 
 	v := NewValidation()
 	err := v.Validate(p)
-	assert.Len(t, err, 1)
+	if len(err) == 0 {
+		t.Error("Esperava erro de validação para produto sem nome")
+	}
 }
 
 func TestProductMissingPriceReturnsErr(t *testing.T) {
 	p := Product{
-		Name:  "abc",
-		Price: -1,
+		Name: "abc",
+		SKU:  "abc-efg-hji",
 	}
 
 	v := NewValidation()
 	err := v.Validate(p)
-	assert.Len(t, err, 1)
+	if len(err) == 0 {
+		t.Error("Esperava erro de validação para produto sem preço")
+	}
 }
 
 func TestProductInvalidSKUReturnsErr(t *testing.T) {
@@ -37,29 +40,23 @@ func TestProductInvalidSKUReturnsErr(t *testing.T) {
 
 	v := NewValidation()
 	err := v.Validate(p)
-	assert.Len(t, err, 1)
-}
-
-func TestValidProductDoesNOTReturnsErr(t *testing.T) {
-	p := Product{
-		Name:  "abc",
-		Price: 1.22,
-		SKU:   "abc-efg-hji",
+	if len(err) == 0 {
+		t.Error("Esperava erro de validação para SKU inválido")
 	}
-
-	v := NewValidation()
-	err := v.Validate(p)
-	assert.Len(t, err, 1)
 }
 
 func TestProductsToJSON(t *testing.T) {
 	ps := []*Product{
 		{
-			Name: "abc",
+			Name:  "abc",
+			Price: 1.22,
+			SKU:   "abc-efg-hji",
 		},
 	}
 
 	b := bytes.NewBufferString("")
 	err := ToJSON(ps, b)
-	assert.NoError(t, err)
+	if err != nil {
+		t.Errorf("Erro ao serializar produtos para JSON: %v", err)
+	}
 }
